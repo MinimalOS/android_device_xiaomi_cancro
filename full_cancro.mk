@@ -12,35 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Boot animation
-TARGET_SCREEN_HEIGHT := 1920
-TARGET_SCREEN_WIDTH := 1080
-
+# Live Wallpapers
+PRODUCT_PACKAGES += \
+        LiveWallpapers \
+        LiveWallpapersPicker \
+        VisualizationWallpapers
+		
 # Inherit from those products. Most specific first.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
 
 # Inherit from cancro device
 $(call inherit-product, device/xiaomi/cancro/cancro.mk)
 
-# Enhanced NFC
-$(call inherit-product, vendor/cm/config/nfc_enhanced.mk)
-
-# Inherit some common CM stuff.
-$(call inherit-product, vendor/cm/config/common_full_phone.mk)
-
-PRODUCT_NAME := cm_cancro
+PRODUCT_NAME := full_cancro
 PRODUCT_DEVICE := cancro
 PRODUCT_BRAND := Xiaomi
-PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_MODEL := MI 3W
-
+PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
-
-TARGET_CONTINUOUS_SPLASH_ENABLED := true
+PRODUCT_RESTRICT_VENDOR_FILES := false
 
 # Build prop overrides
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    TARGET_DEVICE="cancro" \
-    PRODUCT_NAME="cancro" \
     BUILD_FINGERPRINT="Xiaomi/cancro/cancro:5.1.1/LMY48B:userdebug/test-keys" \
     PRIVATE_BUILD_DESC="cancro-userdebug 5.1.1 LMY48B test-keys"
