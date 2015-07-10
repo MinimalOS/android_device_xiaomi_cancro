@@ -33,5 +33,5 @@ PRODUCT_RESTRICT_VENDOR_FILES := false
 
 # Build prop overrides
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BUILD_FINGERPRINT="Xiaomi/cancro/cancro:5.1.1/LMY48B:userdebug/test-keys" \
-    PRIVATE_BUILD_DESC="cancro-userdebug 5.1.1 LMY48B test-keys"
+    BUILD_FINGERPRINT="Xiaomi/cancro/cancro:5.1.1/LVY47H:userdebug/test-keys" \
+    PRIVATE_BUILD_DESC="cancro-userdebug 5.1.1 LVY47H test-keys"
