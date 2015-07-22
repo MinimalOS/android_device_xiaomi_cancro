@@ -189,15 +189,8 @@ BOARD_USES_QC_TIME_SERVICES := true
 # Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
 
-# Enable dex-preoptimization to speed up first boot sequence
-ifeq ($(HOST_OS),linux)
-  ifeq ($(TARGET_BUILD_VARIANT),user)
-    ifeq ($(WITH_DEXPREOPT),)
-      WITH_DEXPREOPT := true
-    endif
-  endif
-endif
-DONT_DEXPREOPT_PREBUILTS := true
+TARGET_GCC_VERSION_EXP := 4.8
+TARGET_GCC_VERSION_ARM := 4.8
 
 # SELinux policies
 # qcom sepolicy
