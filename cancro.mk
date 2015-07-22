@@ -1,31 +1,42 @@
-$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
-
 # Common QCOM configuration tools
 $(call inherit-product, device/qcom/common/Android.mk)
 
-DEVICE_PACKAGE_OVERLAYS += device/xiaomi/cancro/overlay
-
+# Define LOCAL_PATH
 LOCAL_PATH := device/xiaomi/cancro
 
+ifeq ($(XIAOMI_DEVICE),mi3)
+# Device overlays (MI3)
+DEVICE_PACKAGE_OVERLAYS += device/xiaomi/cancro/overlay-mi3
+endif
+
+ifeq ($(XIAOMI_DEVICE),mi4)
+# Device overlays (MI4)
+DEVICE_PACKAGE_OVERLAYS += device/xiaomi/cancro/overlay-mi4
+endif
+
+# No sdcard
 PRODUCT_CHARACTERISTICS := nosdcard
 
-# TRWP recovery
+# TRWP
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/etc/twrp.fstab:recovery/root/etc/twrp.fstab
 
 # USB
+PRODUCT_PACKAGES += \
+    com.android.future.usb.accessory
+
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp
-    
-# Camera Api    
+
+# set USB OTG enabled to add support for USB storage type
 PRODUCT_PROPERTY_OVERRIDES += \
-    camera2.portability.force_api=1
+    persist.sys.isUsbOtgEnabled=1
 
 # Charger
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/root/chargeonlymode:root/sbin/chargeonlymode
 
-# Quick charging
+# Quick Charge 2.0
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.usb.hvdcp.detect=true
 
@@ -46,7 +57,7 @@ PRODUCT_PACKAGES += \
     init.qcom.syspart_fixup.sh \
     init.qcom.usb.sh
 
-# QCOM Config Script
+# QCOM config script
 PRODUCT_PACKAGES += \
     hsic.control.bt.sh \
     init.qcom.bt.sh \
@@ -90,15 +101,26 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.rild.nitz_short_ons_2="" \
     persist.rild.nitz_short_ons_3=""
 
-#camera
-PRODUCT_PACKAGES += camera.msm8974
+# Live Wallpapers
+PRODUCT_PACKAGES += \
+        LiveWallpapers \
+        LiveWallpapersPicker \
+        VisualizationWallpapers	
+	
+# Camera
+PRODUCT_PACKAGES += \
+    camera.msm8974
+
+# Camera api    
+PRODUCT_PROPERTY_OVERRIDES += \
+    camera2.portability.force_api=1
 
 # Power
 PRODUCT_PACKAGES += \
     power.msm8974
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/changepowermode.sh:system/bin/changepowermode.sh
+    $(LOCAL_PATH)/power/changepowermode.sh:system/bin/changepowermode.sh
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.qualcomm.perf.cores_online=1
@@ -141,8 +163,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # IPC router config
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/sec_config:system/etc/sec_config
+    $(LOCAL_PATH)/sensors/sec_config:system/etc/sec_config
 
+ifeq ($(XIAOMI_DEVICE),mi3)
 # NFC
 PRODUCT_PACKAGES += \
     nfc_nci.bcm2079x.default \
@@ -156,10 +179,14 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/nfc/libnfc-brcm-20791b05.conf:system/etc/libnfc-brcm-20791b05.conf \
     $(LOCAL_PATH)/nfc/nfcee_access_debug.xml:system/etc/nfcee_access.xml
 
-# Thermal config
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.nfc.port=I2C
+endif
+
+# Thermal configs
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/thermal-engine.conf:system/etc/thermal-engine-8974.conf \
-    $(LOCAL_PATH)/configs/thermal-engine-perf.conf:system/etc/thermal-engine-perf.conf
+    $(LOCAL_PATH)/thermal/thermal-engine.conf:system/etc/thermal-engine-8974.conf \
+    $(LOCAL_PATH)/thermal/thermal-engine-perf.conf:system/etc/thermal-engine-perf.conf
 
 # Proprietery Firmware
 PRODUCT_COPY_FILES += \
@@ -186,10 +213,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/acdb/MTP/MTP_Headset_cal.acdb:system/etc/acdbdata/MTP/MTP_Headset_cal.acdb \
     $(LOCAL_PATH)/audio/acdb/MTP/MTP_Speaker_cal.acdb:system/etc/acdbdata/MTP/MTP_Speaker_cal.acdb
 
-# Media profile
+# Media profiles
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
-    $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
+    $(LOCAL_PATH)/media/media_codecs.xml:system/etc/media_codecs.xml \
+    $(LOCAL_PATH)/media/media_profiles.xml:system/etc/media_profiles.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml
@@ -244,7 +271,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.audio.fluence.speaker=true \
     audio.offload.pcm.enable=false
 
-#Enable more sensor
+# Enable more sensors
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.qti.sensors.qmd=true \
     ro.qti.sensors.smd=true \
@@ -274,6 +301,7 @@ PRODUCT_PACKAGES += \
     mke2fs_static \
     resize2fs_static
 
+# libxml2
 PRODUCT_PACKAGES += \
     libxml2
 
@@ -295,17 +323,11 @@ PRODUCT_PACKAGES += \
 
 # FM Radio
 PRODUCT_PACKAGES += \
-    FM2 \
-    FMRecord \
     libqcomfm_jni \
     qcom.fmradio
 
 PRODUCT_PROPERTY_OVERRIDES += \
     hw.fm.internal_antenna=true
-
-# USB
-PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory
 
 # Misc dependency packages
 PRODUCT_PACKAGES += \
@@ -321,7 +343,7 @@ PRODUCT_PACKAGES += \
     com.dsi.ant.antradio_library \
     libantradio
 
-#Bluetooth
+# Bluetooth
 PRODUCT_PROPERTY_OVERRIDES += \
     qcom.bt.dev_power_class=1 \
     bluetooth.hfp.client=1 \
@@ -330,12 +352,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 ifneq ($(QCPATH),)
 # proprietary wifi display, if available
-PRODUCT_BOOT_JARS += WfdCommon
+PRODUCT_BOOT_JARS += \
+    WfdCommon
 endif
 
 # System properties
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.nfc.port=I2C \
     ro.fm.transmitter=false \
     com.qc.hardware=true \
     persist.demo.hdmirotationlock=false \
@@ -354,17 +376,23 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.timed.enable=true \
     persist.debug.wfd.enable=1 \
     persist.sys.wfd.virtual=0 \
-    persist.sys.media.use-awesome=true \
     debug.mdpcomp.4k2kSplit=1
 
 # Enable Adaptive Multi-Rate Wideband
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.ril.enable.amr.wideband=1
 
+ifeq ($(XIAOMI_DEVICE),mi4)
 # ir_proximity prop
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.qti.sensors.ir_proximity=true
-	
+endif
+
+# adb secure
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    ro.secure=0 \
+    ro.adb.secure=0
+
 # Permissions
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:system/etc/permissions/com.dsi.ant.antradio_library.xml \
@@ -392,14 +420,11 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
     frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
-    frameworks/native/data/etc/android.software.print.xml:system/etc/permissions/android.software.print.xml
+    frameworks/native/data/etc/android.software.print.xml:system/etc/permissions/android.software.print.xml \
+    frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml
 
-ADDITIONAL_DEFAULT_PROPERTIES += \
-    ro.secure=0 \
-    ro.adb.secure=0
-
-# Device uses high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal hdpi xhdpi xxhdpi
+# Screen density
+PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := xxhdpi
 
 ifneq ($(QCPATH),)
